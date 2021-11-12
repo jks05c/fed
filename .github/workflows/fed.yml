@@ -1,5 +1,7 @@
-name: GitHub Actions Demo
+name: GitHub Actions Demo and Run Azure Login with OpenID Connect
 on: [push]
+permissions:
+  id-token: write
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -15,3 +17,31 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  Windows-latest:
+    runs-on: windows-latest
+    steps:
+      - name: Install CLI-beta
+        run:
+          cd ../..
+          $CWD = Convert-Path .
+          echo $CWD
+          python --version
+          python -m venv oidc-venc
+          . ./oidc-venv/Scripts/Activate.ps1
+          python -m pip install -q --upgrade pip
+          echo "started installing cli beta"
+          pip install -q --extra-index-url https://azcliprod.blob.core.windows.net/beta/simple/ azure-cli
+          echo "installed cli beta" 
+          echo "$CWD\oidc-venv\Scripts" >> $env:GITHUB_PATH
+      - name: Installing Az.accounts for powershell
+        shell: pwsh
+        run: |
+          Install Module -Name Az.accounts -Force -AllowClobber -Repository PSGallery
+
+      - name: OIDC Login to Azure Public Cloud with AzPowershell (enableAzPSSession true)
+        uses: azure/login@v1.4.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENTID }}
+          tenant-id: ${{ secrets.TENANTID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTIONID }}
+          enable-AzPSSession: true
