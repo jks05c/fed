@@ -26,8 +26,8 @@ jobs:
           $CWD = Convert-Path .
           echo $CWD
           python --version
-          python -m venv oidc-venc
-          . ./oidc-venv/Scripts/Activate.ps1
+          python -m venv oidc-venv
+          . .\oidc-venv\Scripts\Activate.ps1
           python -m pip install -q --upgrade pip
           echo "started installing cli beta"
           pip install -q --extra-index-url https://azcliprod.blob.core.windows.net/beta/simple/ azure-cli
